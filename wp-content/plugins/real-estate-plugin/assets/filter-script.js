@@ -50,12 +50,17 @@ jQuery(document).ready(function($) {
                 per_page: getResultsPerPage()
             },
             success: function(response) {
-                // console.log(typeof response);
-                // console.log(response.success); // should be true
+                console.log(typeof response);
+                console.log("response."); // should be true
+                console.log(response); // should be true
                 // console.log(response.data.html);
                 hideLoading();
 
-                response = JSON.parse(response);
+                if (typeof response === 'string') {
+                  response = JSON.parse(response);
+                }
+                console.log("response.success");
+                console.log(response.success);
                 
                 if (response.success) {
                     resultsContainer.fadeOut(200, function() {

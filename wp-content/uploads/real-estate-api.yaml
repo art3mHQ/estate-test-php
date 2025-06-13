@@ -1,0 +1,196 @@
+openapi: 3.0.3
+info:
+  title: Real Estate API
+  description: REST API for managing real estate objects in WordPress using custom post type `real_estate`.
+  version: 1.0.0
+
+servers:
+  - url: https://yourdomain.com/wp-json/real-estate-api/v1
+
+paths:
+  /real_estate:
+    get:
+      summary: List all real estate objects
+      parameters:
+        - in: query
+          name: district
+          schema:
+            type: string
+          description: Filter by district slug
+        - in: query
+          name: building_type
+          schema:
+            type: string
+          description: Filter by building type
+      responses:
+        '200':
+          description: List of real estate items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RealEstate'
+
+    post:
+      summary: Create a new real estate object
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RealEstateInput'
+      responses:
+        '201':
+          description: Created real estate object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RealEstate'
+
+  /real_estate/{id}:
+    get:
+      summary: Get a single real estate object
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Real estate object data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RealEstate'
+        '404':
+          description: Not found
+
+    put:
+      summary: Update a real estate object
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RealEstateInput'
+      responses:
+        '200':
+          description: Updated real estate object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RealEstate'
+        '404':
+          description: Not found
+
+    delete:
+      summary: Delete a real estate object
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Deletion success message
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  id:
+                    type: integer
+        '404':
+          description: Not found
+
+components:
+  schemas:
+    RealEstate:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        content:
+          type: string
+        slug:
+          type: string
+        link:
+          type: string
+        acf:
+          type: object
+          properties:
+            building_name:
+              type: string
+            coordinates:
+              type: array
+              items:
+                type: string
+            floors_count:
+              type: integer
+            building_type:
+              type: string
+            eco_rating:
+              type: string
+            building_image:
+              type: integer
+            rooms:
+              type: array
+              items:
+                type: string
+        districts:
+          type: array
+          items:
+            type: object
+            properties:
+              term_id:
+                type: integer
+              name:
+                type: string
+              slug:
+                type: string
+
+    RealEstateInput:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        building_name:
+          type: string
+        coordinates:
+          type: array
+          items:
+            type: string
+        floors_count:
+          type: integer
+        building_type:
+          type: string
+        eco_rating:
+          type: string
+        building_image:
+          type: string
+          description: Image URL or attachment ID
+        rooms:
+          type: array
+          items:
+            type: string
+        district_ids:
+          type: array
+          items:
+            type: integer

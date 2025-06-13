@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Real Estate Objects Test
- * Plugin URI: https://art3msite.com
+ * Plugin URI: https://github.com/art3mHQ/estate-test-php
  * Description: Custom plugin for managing real estate objects with districts taxonomy
  * Version: 1.0.0
  * Author: art3m
@@ -402,9 +402,6 @@ function real_estate_plugin_deactivate() {
 }
 
 
-
-
-
 /**
  * Real Estate Filter Widget
  * Add this code to your existing plugin file
@@ -611,7 +608,7 @@ class RealEstateFilterWidget {
     /**
      * Get initial results
      */
-    private function get_initial_results($per_page = 6) {
+    private function get_initial_results($per_page = 5) {
         $args = array(
             'post_type' => 'real_estate',
             'posts_per_page' => $per_page,
@@ -882,6 +879,31 @@ new RealEstateFilterWidget();
 
 
 
+// class RealEstateQueryModifier {
+
+//     public function __construct() {
+//         add_action('pre_get_posts', array($this, 'modify_real_estate_query'));
+//     }
+
+//     public function modify_real_estate_query($query) {
+
+//         if (
+//             is_admin()||
+//             // !$query->is_main_query() ||
+//             !$query->is_post_type_archive('real_estate')
+//         ) {
+//             return;
+//         }
+
+//         // Modify the query to order by the ACF field 'eco_rating'
+//         $query->set('meta_key', 'eco_rating');
+//         $query->set('orderby', 'meta_value_num'); // because it's numeric
+//         $query->set('order', 'DESC'); // or 'ASC' if you want low -> high
+//     }
+
+// }
+
+
 class RealEstateQueryModifier {
 
     public function __construct() {
@@ -889,31 +911,37 @@ class RealEstateQueryModifier {
     }
 
     public function modify_real_estate_query($query) {
-        
+        // Skip admin and non-main queries
         if (
-            is_admin()
-        ) {
+            is_admin() || 
+            // !$query->is_main_query() ||
+            !$query->is_post_type_archive('real_estate')
+            ) {
             return;
         }
 
-        // Modify the query to order by the ACF field 'eco_rating'
-        $query->set('meta_key', 'eco_rating');
-        $query->set('orderby', 'meta_value_num'); // because it's numeric
-        $query->set('order', 'DESC'); // or 'ASC' if you want low -> high
+        // Modify real_estate archive pages
+        if ($query->is_post_type_archive('real_estate')) {
+            $this->apply_eco_rating_sort($query);
+        }
+
+        // Modify AJAX WP_Query (e.g., handle_filter_ajax), by checking post_type directly
+        if (isset($query->query_vars['post_type']) && $query->query_vars['post_type'] === 'real_estate') {
+            $this->apply_eco_rating_sort($query);
+        }
     }
 
+    private function apply_eco_rating_sort($query) {
+        // Do not override if ordering is already defined explicitly
+        // if (!$query->get('orderby') ) {
+            $query->set('meta_key', 'eco_rating');
+            $query->set('orderby', 'meta_value_num');
+            $query->set('order', 'DESC');
+        // }
+    }
 }
+
 
 new RealEstateQueryModifier();
 
-
 ?>
-
-
-
-
-
-
-
-
-
